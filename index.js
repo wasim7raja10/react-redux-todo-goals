@@ -5,33 +5,33 @@ function generateId() {
   );
 }
 
-// Library code
-function createStore(reducer) {
-  // The store should have four parts
-  // 1. The state
-  // 2. Get the state. (getState)
-  // 3. Update the state (dispatch)
-  // 4. Listen to changes on the state. (subscribe)
+// // Library code
+// function createStore(reducer) {
+//   // The store should have four parts
+//   // 1. The state
+//   // 2. Get the state. (getState)
+//   // 3. Update the state (dispatch)
+//   // 4. Listen to changes on the state. (subscribe)
 
-  let state;
-  let listeners = [];
+//   let state;
+//   let listeners = [];
 
-  const getState = () => state;
+//   const getState = () => state;
 
-  const dispatch = (action) => {
-    state = reducer(state, action);
-    listeners.forEach(listener => listener());
-  };
+//   const dispatch = (action) => {
+//     state = reducer(state, action);
+//     listeners.forEach(listener => listener());
+//   };
 
-  const subscribe = (listener) => {
-    listeners.push(listener);
-    return () => {
-      listeners = listeners.filter(l => l !== listener);
-    };
-  };
+//   const subscribe = (listener) => {
+//     listeners.push(listener);
+//     return () => {
+//       listeners = listeners.filter(l => l !== listener);
+//     };
+//   };
 
-  return { getState, dispatch, subscribe };
-}
+//   return { getState, dispatch, subscribe };
+// }
 
 // App code
 const ADD_TODO = 'ADD_TODO';
@@ -102,14 +102,21 @@ function goals(state = [], action) {
   }
 }
 
-function app(state = {}, action) {
-  return {
-    todos: todos(state.todos, action),
-    goals: goals(state.goals, action),
-  };
-}
+// function app(state = {}, action) {
+//   return {
+//     todos: todos(state.todos, action),
+//     goals: goals(state.goals, action),
+//   };
+// }
 
-const store = createStore(app);
+// const store = createStore(app);
+
+const store = Redux.createStore(
+  Redux.combineReducers({
+    todos,
+    goals,
+  })
+);
 
 store.subscribe(() => {
   const { goals, todos } = store.getState();
