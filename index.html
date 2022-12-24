@@ -109,6 +109,12 @@
 
     const App = (props) => {
       React.useEffect(() => {
+        Promise.all([
+          API.fetchTodos(),
+          API.fetchGoals()
+        ]).then(([todos, goals]) => {
+          props.store.dispatch(receiveDataAction(todos, goals));
+        });
         props.store.subscribe(() => {
           ReactDOM.render(
             <App store={props.store} />,
