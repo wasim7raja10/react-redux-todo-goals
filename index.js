@@ -115,6 +115,15 @@ function goals(state = [], action) {
   }
 }
 
+function loading(state = true, action) {
+  switch (action.type) {
+    case RECEIVE_DATA:
+      return false;
+    default:
+      return state;
+  }
+}
+
 // function app(state = {}, action) {
 //   return {
 //     todos: todos(state.todos, action),
@@ -128,6 +137,7 @@ const store = Redux.createStore(
   Redux.combineReducers({
     todos,
     goals,
+    loading,
   })
 );
 

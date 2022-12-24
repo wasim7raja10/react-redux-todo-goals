@@ -123,7 +123,11 @@
         });
       }, []);
 
-      const { goals, todos } = props.store.getState();
+      const { goals, todos, loading } = props.store.getState();
+
+      if (loading) {
+        return <h3>Loading...</h3>
+      }
       
       return (
         <div>
