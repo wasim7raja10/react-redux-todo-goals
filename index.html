@@ -10,6 +10,7 @@
   <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.17.6/babel.min.js"></script>
   <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
+  <script src="https://unpkg.com/redux-thunk@2.2.0/dist/redux-thunk.min.js"></script>
 </head>
 <body>
   <!-- <div>
@@ -52,30 +53,18 @@
       const inputRef = React.useRef();
       const addItem = (e) => {
         e.preventDefault();
-        API.saveTodo(inputRef.current.value).then((todo) => {
-          props.store.dispatch(addTodoAction(todo));
-          inputRef.current.value = '';
-        }).catch(() => {
-          alert('An error occurred. Try again.');
-        });
+        props.store.dispatch(handleAddTodoAction(
+          inputRef.current.value, 
+          () => inputRef.current.value = ''
+        ));
       }
 
       const removeItem = (todo) => {
-        props.store.dispatch(removeTodoAction(todo.id));
-
-        API.deleteTodo(todo.id).catch(() => {
-          props.store.dispatch(addTodoAction(todo));
-          alert('An error occurred. Try again.');
-        });
+        props.store.dispatch(handleDeleteTodoAction(todo));
       }
 
       const toggleItem = (todo) => {
-        props.store.dispatch(toggleTodoAction(todo.id));
-
-        API.saveTodoToggle(todo.id).catch(() => {
-          props.store.dispatch(toggleTodoAction(todo.id));
-          alert('An error occurred. Try again.');
-        });
+        props.store.dispatch(handleToggleAction(todo.id));
       }
 
       return (
@@ -93,21 +82,14 @@
       const inputRef = React.useRef();
       const addItem = (e) => {
         e.preventDefault();
-        API.saveGoal(inputRef.current.value).then((goal) => {
-          props.store.dispatch(addGoalAction(goal));
-          inputRef.current.value = '';
-        }).catch(() => {
-          alert('An error occurred. Try again.');
-        });
+        props.store.dispatch(handleAddGoalAction(
+          inputRef.current.value, 
+          () => inputRef.current.value = ''
+        ));
       }
 
       const removeItem = (goal) => {
-        props.store.dispatch(removeGoalAction(goal.id));
-
-        API.deleteGoal(goal.id).catch(() => {
-          props.store.dispatch(addGoalAction(goal));
-          alert('An error occurred. Try again.');
-        });
+        props.store.dispatch(handleDeleteGoalAction(goal));
       }
       return (
         <div>
@@ -121,12 +103,7 @@
 
     const App = (props) => {
       React.useEffect(() => {
-        Promise.all([
-          API.fetchTodos(),
-          API.fetchGoals()
-        ]).then(([todos, goals]) => {
-          props.store.dispatch(receiveDataAction(todos, goals));
-        });
+        props.store.dispatch(handleInitialData());
         props.store.subscribe(() => {
           ReactDOM.render(
             <App store={props.store} />,
