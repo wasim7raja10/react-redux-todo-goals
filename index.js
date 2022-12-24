@@ -95,6 +95,8 @@ function todos(state = [], action) {
     case TOGGLE_TODO:
       return state.map(todo => todo.id !== action.id ? todo :
         Object.assign({}, todo, { complete: !todo.complete }));
+    case RECEIVE_DATA:
+      return action.todos;
     default:
       return state;
   }
@@ -106,6 +108,8 @@ function goals(state = [], action) {
       return state.concat([action.goal]);
     case REMOVE_GOAL:
       return state.filter(goal => goal.id !== action.id);
+    case RECEIVE_DATA:
+      return action.goals;
     default:
       return state;
   }
