@@ -52,22 +52,30 @@
       const inputRef = React.useRef();
       const addItem = (e) => {
         e.preventDefault();
-        const name = inputRef.current.value;
-        inputRef.current.value = '';
-
-        props.store.dispatch(addTodoAction({
-          id: generateId(),
-          name,
-          complete: false
-        }));
+        API.saveTodo(inputRef.current.value).then((todo) => {
+          props.store.dispatch(addTodoAction(todo));
+          inputRef.current.value = '';
+        }).catch(() => {
+          alert('An error occurred. Try again.');
+        });
       }
 
       const removeItem = (todo) => {
         props.store.dispatch(removeTodoAction(todo.id));
+
+        API.deleteTodo(todo.id).catch(() => {
+          props.store.dispatch(addTodoAction(todo));
+          alert('An error occurred. Try again.');
+        });
       }
 
       const toggleItem = (todo) => {
         props.store.dispatch(toggleTodoAction(todo.id));
+
+        API.saveTodoToggle(todo.id).catch(() => {
+          props.store.dispatch(toggleTodoAction(todo.id));
+          alert('An error occurred. Try again.');
+        });
       }
 
       return (
@@ -85,17 +93,21 @@
       const inputRef = React.useRef();
       const addItem = (e) => {
         e.preventDefault();
-        const name = inputRef.current.value;
-        inputRef.current.value = '';
-
-        props.store.dispatch(addGoalAction({
-          id: generateId(),
-          name
-        }));
+        API.saveGoal(inputRef.current.value).then((goal) => {
+          props.store.dispatch(addGoalAction(goal));
+          inputRef.current.value = '';
+        }).catch(() => {
+          alert('An error occurred. Try again.');
+        });
       }
 
       const removeItem = (goal) => {
         props.store.dispatch(removeGoalAction(goal.id));
+
+        API.deleteGoal(goal.id).catch(() => {
+          props.store.dispatch(addGoalAction(goal));
+          alert('An error occurred. Try again.');
+        });
       }
       return (
         <div>
