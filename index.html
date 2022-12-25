@@ -30,6 +30,7 @@
 
   <div id="app"></div>
   <script src="./index.js"></script>
+
   <script crossorigin type="text/babel">
     const List = (props) => {
       return (
@@ -51,20 +52,22 @@
 
     const Todos = (props) => {
       const inputRef = React.useRef();
+
       const addItem = (e) => {
         e.preventDefault();
-        props.store.dispatch(handleAddTodoAction(
+        
+        props.dispatch(handleAddTodoAction(
           inputRef.current.value, 
           () => inputRef.current.value = ''
         ));
       }
 
       const removeItem = (todo) => {
-        props.store.dispatch(handleDeleteTodoAction(todo));
+        props.dispatch(handleDeleteTodoAction(todo));
       }
 
       const toggleItem = (todo) => {
-        props.store.dispatch(handleToggleAction(todo.id));
+        props.dispatch(handleToggleAction(todo.id));
       }
 
       return (
@@ -78,18 +81,22 @@
       );
     }
 
+    const ConnectedTodos = connect((state) => ({
+      todos: state.todos,
+    }))(Todos);
+
     const Goals = (props) => {
       const inputRef = React.useRef();
       const addItem = (e) => {
         e.preventDefault();
-        props.store.dispatch(handleAddGoalAction(
+        props.dispatch(handleAddGoalAction(
           inputRef.current.value, 
           () => inputRef.current.value = ''
         ));
       }
 
       const removeItem = (goal) => {
-        props.store.dispatch(handleDeleteGoalAction(goal));
+        props.dispatch(handleDeleteGoalAction(goal));
       }
       return (
         <div>
@@ -101,33 +108,81 @@
       );
     }
 
+    const ConnectedGoals = connect((state) => ({
+      goals: state.goals,
+    }))(Goals);
+
     const App = (props) => {
       React.useEffect(() => {
-        props.store.dispatch(handleInitialData());
-        props.store.subscribe(() => {
-          ReactDOM.render(
-            <App store={props.store} />,
-            document.getElementById('app')
-          );
-        });
+        props.dispatch(handleInitialData());
       }, []);
-
-      const { goals, todos, loading } = props.store.getState();
-
-      if (loading) {
-        return <h3>Loading...</h3>
+      if (props.loading === true) {
+        return <h3>Loading</h3>;
       }
-      
       return (
         <div>
-          <Todos store={props.store} todos={todos} />
-          <Goals store={props.store} goals={goals} />
+          <ConnectedTodos />
+          <ConnectedGoals />
         </div>
       );
     }
 
+    const ConnectedApp = connect((state) => ({
+      loading: state.loading,
+    }))(App);
+
+    const Context = React.createContext();
+
+    function connect(mapStateToProps) {
+      return (Component) => {
+        const Receiver = (props) => {
+          const [value, setValue] = React.useState(0);
+
+          React.useEffect(() => {
+            let unmounted = false;
+            const { subscribe } = props.store;
+
+            const unsubscribe = subscribe(() => {
+              setValue((value) => value + 1);
+            });
+
+            return () => {
+              unsubscribe();
+              unmounted = true;
+            };
+          }, []);
+
+          const { dispatch, getState } = props.store;
+          const state = getState();
+          const stateNeeded = mapStateToProps(state);
+
+          return <Component {...stateNeeded} dispatch={dispatch} />;
+        };
+
+        const ConnectedComponent = () => {
+          return (
+            <Context.Consumer>
+              {(store) => <Receiver store={store} />}
+            </Context.Consumer>
+          );
+        };
+
+        return ConnectedComponent;
+      };
+    }
+
+    const Provider = (props) => {
+      return (
+        <Context.Provider value={props.store}>
+          {props.children}
+        </Context.Provider>
+      );
+    };
+
     ReactDOM.render(
-      <App store={store} />,
+      <Provider store={store}>
+        <ConnectedApp />
+      </Provider>,
       document.getElementById('app')
     );
   </script>
